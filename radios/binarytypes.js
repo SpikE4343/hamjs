@@ -89,7 +89,7 @@ lib.CustomString = jBinary.Type({
 ///
 // string <-> int
 ///
-lib.Enumeration : jBinary.Type({
+lib.Enumeration = jBinary.Type({
   params: [
     'itemType', // basically only integers
     'names'
@@ -108,4 +108,19 @@ lib.Enumeration : jBinary.Type({
     var output = names.indexOf(value);
     this.binary.write( this.itemType, output );
   }
-}),
+});
+
+lib.Boolean = jBinary.Type({
+  params: [
+    'bitcount'
+  ],
+
+  read: function(){
+    var value = this.binary.read( ['bitfield', this.bitcount] );
+    return value > 0;
+  },
+
+  write: function(value){
+    this.binary.write( ['bitfield', this.bitcount], value ? 1 : 0 );
+  }
+});
