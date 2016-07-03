@@ -1,11 +1,139 @@
 var jBinary = require('jbinary');
+var binarytypes = require('../binarytypes.js');
+var definition = require('../definition.js');
 
-module.exports = {
-  vendor: 'Yaesu',
-  model: 'FTM-400',
-  fileHeaderAscii = 'AH034$',
+var r = module.exports;
 
-  typeset: {
+r.vendor = 'Yaesu';
+r.model = 'FTM-400';
+r.fileHeaderAscii = 'AH034$';
+
+r.modes = [ "FM", "AM", "NFM", "", "WFM" ];
+r.duplexes = [ "", "", "-", "+", "split" ];
+r.labelEncoding = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\"#$%&`()*+,-./:;<=>?@[\\]^_`{|}~?????? ???????????????????????????????????????????????????????????????????????????????????????????";
+r.labelFill = '?';
+
+r.map = {
+  binaryLayout: {
+    memory: {
+      tag: ['string', 6],
+      unknown1: ['blob', 690],
+      settings: 'Options',
+
+      unknown2: ['blob', 1342],
+
+      // home: ['array', 'home', 2],
+      //radio0: 'channel',
+      //label0: 'label',
+      //radio1: 'channel',
+      //label1: 'label',
+
+      transcevers: ['array', 'Transcever', 2],
+      labels: ['array', 'LabelList', 2]
+    },
+
+    Transcever: {
+      channels: [ 'array', 'Channel', 518]
+    },
+
+  }
+
+  Channel: {
+    size: 16,
+    fields: [
+      {
+        name: 'used',
+        label: "Used",
+        type: [ 'bitfield', 1],
+        encoding: "bool",
+        show: false
+      },
+      {
+        name: 'skip',
+        label: "Skip",
+        type: ['bitfield', 2],
+      },
+      {
+        name: 'unknown1',
+        type: ['bitfield', 5],
+        show: false
+      },
+      {
+        name: 'unknown2',
+        type: ['bitfield', 1],
+        show: false
+      },
+      {
+        name: 'mode',
+        label: "Mode",
+        type: [
+          'Enumeration',
+          ['bitfield', 3],
+          r.modes],
+        encoding: r.modes
+      },
+      {
+        name: 'unknown3',
+        type: ['bitfield', 1],
+        show: false
+      },
+      {
+        name: 'oddsplit',
+        label: "Odd Split",
+        type: ['bitfield', 1],
+        encoding: "bool"
+      },
+      {
+        name: 'duplex',
+        label: "Duplex",
+        type: [
+          'Enumeration',
+          ['bitfield', 3],
+          r.duplexes
+        ],
+        encoding: r.duplexes
+      },
+      {
+        name: 'frequency',
+        label: "Frequency",
+        units: "Mhz",
+        type: [ 'Frequency', 6 ]
+      }
+      power: {
+        label: "Power",
+      },
+      offset: {
+        label: "Offset"
+      },
+      tmode: {
+        label: "TMode"
+      },
+      tone: {
+        label: "Tone"
+      },
+      dtcs: {
+        label: "DTCS"
+      },
+
+
+      oddsplit: {
+        label: "Odd Split",
+        encoding: "bool"
+      },
+      showalpha: {
+        label: "Show Alpha",
+        encoding: "bool"
+      },
+      split: {
+        label: "Split",
+        units: "Mhz",
+        encoding: "Frequency"
+      }
+    ]
+  }
+};
+
+r.typeset = {
     'jBinary.littleEndian': true,
     'jBinary.all': 'memory',
 
@@ -158,10 +286,11 @@ module.exports = {
   		label: 'labellist'
   	},
 
-    aprsCallsign:{
+    aprsCallsign: {
 
     },
-    aprsOptions:{
+
+    aprsOptions: {
 
     },
 
